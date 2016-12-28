@@ -1,0 +1,74 @@
+﻿@using Newtonsoft.Json.Linq;
+@using WebApi.Models;
+
+@model UserSeats
+@{
+    ViewBag.Title = "ShowReservedSeats";
+}
+
+<h2>ShowReservedSeats</h2>
+
+<table class="table table-bordered">
+    <thead></thead>
+    <tbody>
+        @{
+            var userReservedSeats = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SeatCoordinates>>(Model.userReservedSeats);
+
+            int i = 0;
+            foreach (JArray arr in Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(Model.allHallSeats))
+            {
+                int j = 0;
+                <tr>
+                    <th>@(i + 1)</th>
+                    @foreach (bool isFree in arr)
+                    {
+                        if (userReservedSeats.Contains(new SeatCoordinates() { RowNumber = i, SeatNumber = j }))
+                        {
+                            <td class="myPlace">@(j + 1)</td>
+                        }
+                        else if (isFree)
+                        {
+                            <td>@(j + 1)</td>
+                        }
+                        else
+                        {
+                            <td class="isNotFree">@(j + 1)</td>
+                        }
+                        j++;
+                    }
+                </tr>
+                i++;
+            }
+
+        }
+    </tbody>
+</table>
+
+
+
+<style type="text/css">
+    .table th, td {
+        text-align: center;
+    }
+
+    .table th {
+        background-color: azure;
+    }
+
+    .table td:not(.isNotFree):hover {
+        background-color: coral;
+        cursor: pointer;
+    }
+
+    .checkedSeats {
+        background-color: coral;
+    }
+
+    .isNotFree {
+        background-color: #f44340;
+    }
+
+    .myPlace {
+        background-color: greenyellow;
+    }
+</style>

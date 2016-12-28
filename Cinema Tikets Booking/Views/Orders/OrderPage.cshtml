@@ -1,0 +1,113 @@
+﻿
+@{
+    ViewBag.Title = "OrderPage";
+}
+
+<script src="~/Scripts/aes.js" type="text/javascript"></script>
+
+<!-- for RSA-->
+<script src="~/Scripts/.net Crypto/System.js"></script>
+<script src="~/Scripts/.net Crypto/System.IO.js"></script>
+<script src="~/Scripts/.net Crypto/System.Text.js"></script>
+<script src="~/Scripts/.net Crypto/System.Convert.js"></script>
+<script src="~/Scripts/.net Crypto/System.BigInt.js"></script>
+<script src="~/Scripts/.net Crypto/System.BitConverter.js"></script>
+<script src="~/Scripts/.net Crypto/System.Security.Cryptography.js"></script>
+<script src="~/Scripts/.net Crypto/System.Security.Cryptography.SHA1.js"></script>
+<script src="~/Scripts/.net Crypto/System.Security.Cryptography.HMACSHA1.js"></script>
+<script src="~/Scripts/.net Crypto/System.Security.Cryptography.RSA.js"></script>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Cinema Name</th>
+            <th>Film.Name</th>
+            <th>HallName</th>
+            <th>Date&Time</th>
+            <th>Price</th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="orders"></tbody>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var rsaProvider = new System.Security.Cryptography.RSACryptoServiceProvider(1024);
+        var RSAPublicKey = rsaProvider.ToXmlString(false);
+
+            $.ajax({
+                async: false,
+                url: "/Orders/EncryptedOrders",
+                method: "POST",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + sessionStorage.getItem("access_token")
+                },
+                data: {
+                    RSAPublicKey: RSAPublicKey
+                },
+                success: function (response) {
+                    var rsaSignatureProvider = new System.Security.Cryptography.RSACryptoServiceProvider();
+                    rsaSignatureProvider.FromXmlString(response.signaturePublicKey);
+
+                    var isValid = rsaSignatureProvider.VerifyData(
+                        System.Convert.FromBase64String(response.encryptedAesKey),
+                        new System.Security.Cryptography.SHA1CryptoServiceProvider(),
+                        System.Convert.FromBase64String(response.signedData));
+
+                    if (isValid) {
+                        var decryptedBytesAesKey = rsaProvider.Decrypt(System.Convert.FromBase64String(response.encryptedAesKey), true);
+
+                        //var aesKey = CryptoJS.enc.Utf8.parse(System.Text.Encoding.UTF8.GetString(decryptedBytesAesKey)); //rsa
+                        var aesKey = CryptoJS.enc.Base64.parse(System.Convert.ToBase64String(decryptedBytesAesKey));
+                        var aesIv = CryptoJS.enc.Utf8.parse('8080808080808080');
+                        alert("aesKey: " + aesKey);
+
+                        var orders = JSON.parse(CryptoJS.AES.decrypt(response.orders, aesKey, {
+                            iv: aesIv,
+                            padding: CryptoJS.pad.Pkcs7,
+                            mode: CryptoJS.mode.CBC
+                        }).toString(CryptoJS.enc.Utf8));
+
+                        for (var i in orders) {
+                            $("#orders").append("<tr>" +
+                                "<td>" + orders[i].CinemaName + "</td>" +
+                                "<td><a href='" + orders[i].FilmDetailsLink + "'>" + orders[i].FilmName + "</a></td>" +
+                                "<td>" + orders[i].HallName + "</td>" +
+                                "<td>" + orders[i].DateTime + "</td>" +
+                                "<td>" + orders[i].Price + "</td>" +
+                                "<td><a href='/Orders/ShowReservedSeats/" + orders[i].OrderId + "'>My seats</a></td>" +
+                                "</tr>");
+                        }
+
+                    } else alert("unveryfied");
+                },
+
+                error (xhr) {
+                    if (xhr.status == "401")
+                        $("#errorModal").modal("show");
+                    else {
+                        $('#divErrorText').text(xhr.status + " " + xhr.responseText);
+                        $('#divError').show('fade');
+                    }
+                }
+            });
+
+        $('#linkClose').click(function () {
+            $('#divError').hide('fade');
+        });
+
+        $('#errorModal').on('hidden.bs.modal', function () {
+            window.location.href = "/Account/Login";
+        });
+
+        $('#successModal').on('hidden.bs.modal', function () {
+            window.location.href = "/";
+        });
+    });
+
+</script>

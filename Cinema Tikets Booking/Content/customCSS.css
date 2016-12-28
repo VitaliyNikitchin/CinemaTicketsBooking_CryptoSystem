@@ -1,0 +1,46 @@
+﻿.customList  {
+    list-style: none;
+    padding: 0;
+}
+
+.customList li {
+    padding: 10px 30px;
+    /*background: linear-gradient(to left, #f8ab8d 0%, white, #f8ab8d);*/
+    background-color: #f5f5f5;
+    border-bottom: 1px solid grey;
+    color: #506a6b;
+    font-size: 18px;
+    box-shadow: 0 5px 5px 0 rgba(0,0,0, .2);
+    margin-bottom: 5px;
+}
+.customList li:last-child {
+    border-bottom: none;
+}
+.customList li:hover {
+    cursor:pointer;
+    text-decoration: underline;
+}
+
+#activeListItem {
+    background-color: orange;
+}
+
+#cinemaBlock {
+    float: left;
+    display: inline-block;
+    width: 25%;
+    height: 550px;
+    margin: 5px;
+    margin-right: 10px;
+    overflow-y: scroll;
+}
+
+#filmBlock {
+    float: left;
+    display: inline-block;
+    width: 70%;
+    margin: 5px;
+    margin-left: 10px;
+}
+
+

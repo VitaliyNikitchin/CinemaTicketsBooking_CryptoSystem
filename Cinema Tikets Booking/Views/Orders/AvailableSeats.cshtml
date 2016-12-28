@@ -1,0 +1,171 @@
+﻿@using Newtonsoft.Json.Linq;
+@model WebApi.Models.FilmSession
+
+@{
+    ViewBag.Title = "ShowAvailableSeats";
+}
+
+<h2>Available Seats</h2>
+
+
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.Cinema.Name)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Cinema.Name)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Film.Name)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Film.Name)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.DateTime)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.DateTime)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Price)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Price)
+    </dd>
+</dl>
+<br />
+
+
+
+<table class="table table-bordered">
+    <thead></thead>
+    <tbody>
+        @{
+            int i = 0;
+            foreach (JArray arr in Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(Model.SeatIsFree))
+            {
+                int j = 0;
+                <tr>
+                    <th>@(i + 1)</th>
+                    @foreach (bool isFree in arr)
+                    {
+                        if (isFree)
+                        {
+                            <td>@(j + 1)</td>
+                        }
+                        else
+                        {
+                            <td class="isNotFree">@(j + 1)</td>
+                        }
+                        j++;
+                    }
+                </tr>
+                i++;
+            }
+        }
+    </tbody>
+</table>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="col-xs-10"></div>
+        <div class="col-xs-1"><button id="clear" type="button" class="btn btn-primary">Clear</button></div>
+        <div class="col-xs-1"><button id="reserve" type="button" class="btn btn-primary">Reserve</button></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+        $(document).ready(function() {
+            //if (sessionStorage.getItem("access_token") == null)
+            //window.location.href = "/Account/Login";
+
+            var checkedSeats = [];
+
+            $(".table tbody td:not(.isNotFree)").on("click", function () {
+                checkedSeats.push({
+                    rowNumber: $(this).parent().index(),
+                    seatNumber: ($(this).index() - 1)
+                });
+
+                $(this).attr("class", "checkedSeats");
+            });
+
+            $("#clear").on("click", function() {
+                checkedSeats = [];
+                $(".checkedSeats").removeAttr("class");
+            });
+
+            $("#reserve").on("click", function () {
+                $.ajax({
+                    async: false,
+                    url: "/Orders/MakeOrder",
+                    method: "POST",
+
+                    dataType: "json",
+                    headers: {
+                        "Authorization": "Bearer " + sessionStorage.getItem("access_token")
+                    },
+                    data: {
+                        reservedSeats: checkedSeats,
+                        filmSessionId: @Html.Raw(Model.FilmSessionId)
+                        },
+                    success: function (response) {
+                        $("#successModal").modal("show");
+                    },
+
+                    error (xhr) {
+                        if (xhr.status == "401")
+                            $("#errorModal").modal("show");
+                        else {
+                            $('#divErrorText').text(xhr.responseText);
+                            $('#divError').show('fade');
+                        }
+                    }
+                });
+            });
+
+            $('#linkClose').click(function () {
+                $('#divError').hide('fade');
+            });
+
+            $('#errorModal').on('hidden.bs.modal', function () {
+                window.location.href = "/Account/Login";
+            });
+
+            $('#successModal').on('hidden.bs.modal', function () {
+                window.location.href = "/";
+            });
+        });
+</script>
+
+<style type="text/css">
+    .table th, td {
+        text-align: center;
+    }
+
+    .table th {
+        background-color: azure;
+    }
+
+    .table td:not(.isNotFree):hover {
+        background-color: coral;
+        cursor: pointer;
+    }
+
+    .checkedSeats {
+        background-color: coral;
+    }
+
+    .isNotFree {
+        background-color: #f44340;
+    }
+</style>

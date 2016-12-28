@@ -1,0 +1,68 @@
+﻿@model List<WebApi.Models.CinemaJsonModel>
+@using System.Text.RegularExpressions
+
+@{
+    ViewBag.Title = "Home";
+}
+@Styles.Render("~/Content/customCSS")
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#cinemaName").on("click", "li", function () {
+            $("#filmBlock").find("table").hide();
+            $("#" + $(this).text().replace(/\s/g, '')).show("slow");
+
+            $("#cinemaName").find("li").removeAttr("id");
+            $(this).attr("id", "activeListItem");
+        });
+
+        $("#filmBlock").find("table").not(":first").hide();
+        $("#cinemaName").find("li").first().attr("id", "activeListItem");
+
+        $("#btnChangeDate").on("click", function () {
+            window.location.href = "/Home/Index/" + $("#calendar").val();
+        });
+    });
+
+
+</script>
+
+
+<div style="display: inline-block; width: 1100px;">
+
+    <div class="well">
+        <input id="calendar" type="date" name="date">
+        <button id="btnChangeDate">Get Data</button>
+    </div>
+
+    <div id="cinemaBlock">
+        <ul id="cinemaName" class="customList">
+            @foreach (var item in Model)
+            {
+                <li>@item.CinemaName</li>
+            }
+        </ul>
+    </div>
+
+    <div id="filmBlock">
+        @foreach (var item in Model)
+        {
+            <table id=@Regex.Replace(item.CinemaName, "[ ]", "") class="table table-hover">
+                <thead><tr><th>Назва фільму</th><th>Зал</th><th>Час</th><th>Ціна</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var filmsession in item.FilmSession)
+                    {
+                        <tr>
+                            <td><a href=@filmsession.FilmDetailsLink>@filmsession.FilmName</a></td>
+                            <td>@filmsession.HallName</td>
+                            <td>@filmsession.Time</td>
+                            <td>@filmsession.Price</td>
+                            <td><a href=@filmsession.AvailableSeatsLink>Места</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

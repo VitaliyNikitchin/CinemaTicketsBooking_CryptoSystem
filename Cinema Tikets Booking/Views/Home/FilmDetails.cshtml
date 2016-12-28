@@ -1,0 +1,120 @@
+﻿@model WebApi.Models.Film
+
+@{
+    ViewBag.Title = "FilmDetails";
+}
+
+<h2>Film Details</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ImageLink)
+        </dt>
+
+        <dd>
+            <img src="@Html.DisplayFor(model => model.ImageLink)" />
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Genre)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Genre)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Country)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Country)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Year)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Year)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DirectedBy)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DirectedBy)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Studio)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Studio)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Budget)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Budget)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UkrainePremiere)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UkrainePremiere)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.WorldPremiere)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.WorldPremiere)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Duration)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Duration)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ActorsList)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ActorsList)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.FilmId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+<style>
+    img {
+        width: 150px;
+        height: 200px;
+    }
+</style>
