@@ -53,7 +53,7 @@
                 success: function (response) {
                     var rsaSignatureProvider = new System.Security.Cryptography.RSACryptoServiceProvider();
                     rsaSignatureProvider.FromXmlString(response.signaturePublicKey);
-
+                    
                     var isValid = rsaSignatureProvider.VerifyData(
                         System.Convert.FromBase64String(response.encryptedAesKey),
                         new System.Security.Cryptography.SHA1CryptoServiceProvider(),
@@ -61,11 +61,12 @@
 
                     if (isValid) {
                         var decryptedBytesAesKey = rsaProvider.Decrypt(System.Convert.FromBase64String(response.encryptedAesKey), true);
+                        var decryptedBytesAesIv  = rsaProvider.Decrypt(System.Convert.FromBase64String(response.encryptedAesIv), true);
 
                         //var aesKey = CryptoJS.enc.Utf8.parse(System.Text.Encoding.UTF8.GetString(decryptedBytesAesKey)); //rsa
                         var aesKey = CryptoJS.enc.Base64.parse(System.Convert.ToBase64String(decryptedBytesAesKey));
-                        var aesIv = CryptoJS.enc.Utf8.parse('8080808080808080');
-                        alert("aesKey: " + aesKey);
+                        var aesIv = CryptoJS.enc.Base64.parse(System.Convert.ToBase64String(decryptedBytesAesIv));//CryptoJS.enc.Utf8.parse('8080808080808080');
+                        alert("aesKey: " + aesKey + "\n" + "aesIv: " + aesIv);
 
                         var orders = JSON.parse(CryptoJS.AES.decrypt(response.orders, aesKey, {
                             iv: aesIv,
