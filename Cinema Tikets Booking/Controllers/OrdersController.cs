@@ -69,10 +69,10 @@ namespace Cinema_Security.Controllers
             var rsaSignatureProvider = new RSACryptoServiceProvider();
             var rsaSignatureProviderPublicKey = rsaSignatureProvider.ToXmlString(false);  //public key of rsa signature provider
 
-            //create new instance of pbkdf with random password
+            //create new instance of pbkdf with random iv
             var pbKdf = new Rfc2898DeriveBytes("8080808080808080", 16);
             byte[] aesKey = pbKdf.GetBytes(16);//System.Text.Encoding.UTF8.GetBytes("808080808080808e");
-            byte[] aesIv = System.Text.Encoding.UTF8.GetBytes("8080808080808080");
+            byte[] aesIv = pbKdf.GetBytes(16);//System.Text.Encoding.UTF8.GetBytes("8080808080808080");
 
             using (var db = new ApplicationDbContext())
             {
@@ -91,11 +91,13 @@ namespace Cinema_Security.Controllers
                     }).ToList();
 
                 var encryptedAesKey = rsaProvider.Encrypt(aesKey, true);
+                var encryptedAesIv = rsaProvider.Encrypt(aesIv, true);
                 var signedAesKey = rsaSignatureProvider.SignData(encryptedAesKey, new SHA1CryptoServiceProvider());
 
                 var responseData = new
                 {
                     encryptedAesKey = System.Convert.ToBase64String(encryptedAesKey),
+                    encryptedAesIv = System.Convert.ToBase64String(encryptedAesIv),
                     orders = AESCryptoProvider.Encrypt(JsonConvert.SerializeObject(orders), aesKey, aesIv),
                     signedData = System.Convert.ToBase64String(signedAesKey),
                     signaturePublicKey = rsaSignatureProviderPublicKey
